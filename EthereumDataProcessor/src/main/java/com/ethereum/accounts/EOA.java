@@ -1,9 +1,12 @@
-package com.ethereum.eoa;
+package com.ethereum.accounts;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.time.Duration;
+import java.time.Instant;
 
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 
@@ -13,6 +16,22 @@ public class EOA {
 	private String address;
 	private List<EthereumTransaction> transactions;
 
+	public EOA(String address, List<EthereumTransaction> transactions) {
+		super();
+		this.address = address.toLowerCase();
+		this.transactions = transactions;
+	}
+	
+	public String getAddress() {
+		return address;
+	}
+
+
+	public List<EthereumTransaction> getTransactions() {
+		return transactions;
+	}
+	
+
 	private EthereumTransaction getFirstTransaction() {
 		return this.transactions.get(0);
 	}
@@ -20,12 +39,7 @@ public class EOA {
 	private EthereumTransaction getLastTransaction() {
 		return this.transactions.get(this.transactions.size() - 1);
 	}
-
-	public EOA(String address, List<EthereumTransaction> transactions) {
-		super();
-		this.address = address.toLowerCase();
-		this.transactions = transactions;
-	}
+	
 
 	public int f1_total_transactions_sent() {
 		int count = 0;
@@ -120,7 +134,8 @@ public class EOA {
 	}
 
 	public Long f12_transaction_active_duration() {
-		return Math.abs(this.f11_last_transaction_time() - this.f10_first_transaction_time()) / 60;
+		return Duration.between(Instant.ofEpochSecond(this.f10_first_transaction_time()),
+				Instant.ofEpochSecond(this.f11_last_transaction_time())).toSeconds();
 	}
 
 	public String f13_last_txn_bit() {
@@ -387,45 +402,86 @@ public class EOA {
 		return getFirstTransaction().getValue();
 	}
 
-//    public void  f39_mean_in_time(self):
-//        times = []
-//        all_time = [x['timeStamp'] for x in self.transactions if x['to'] == self.eoa_address]
-//        for index,value in enumerate(all_time):
-//            if(index + 1 < len(all_time)):
-//                a = datetime.datetime.fromtimestamp(int(all_time[index]))
-//                b = datetime.datetime.fromtimestamp(int(all_time[index + 1]))
-//                times.append((b-a).total_seconds()) 
-//        if(len(times) == 0):
-//            return 0
-//        else:
-//            return statistics.mean(times)
-//        
-//    public void  f40_mean_out_time(self):
-//        times = []
-//        all_time = [x['timeStamp'] for x in self.transactions if x['from'] == self.eoa_address]
-//        for index,value in enumerate(all_time):
-//            if(index + 1 < len(all_time)):
-//                a = datetime.datetime.fromtimestamp(int(all_time[index]))
-//                b = datetime.datetime.fromtimestamp(int(all_time[index + 1]))
-//                times.append((b-a).total_seconds()) 
-//        if(len(times) == 0):
-//            return 0
-//        else:
-//            return statistics.mean(times)
-//        
-//    public void  f41_mean_time(self):
-//        times = []
-//        all_time = [x['timeStamp'] for x in self.transactions]
-//        for index,value in enumerate(all_time):
-//            if(index + 1 < len(all_time)):
-//                a = datetime.datetime.fromtimestamp(int(all_time[index]))
-//                b = datetime.datetime.fromtimestamp(int(all_time[index + 1]))
-//                times.append((b-a).total_seconds()) 
-//        if(len(times) == 0):
-//            return 0
-//        else:
-//            return statistics.mean(times)
-//        
+	public double f39_mean_in_time() {
+		List<Long> all_time = new ArrayList<Long>();
+		List<Long> times = new ArrayList<Long>();
+		for (EthereumTransaction tx : this.transactions) {
+			if (tx.getTo().equals(this.address)) {
+				all_time.add(Long.parseLong(tx.getTimeStamp()));
+
+			}
+		}
+		for (Long time : all_time) {
+			int currentIndex = all_time.indexOf(time);
+			if (currentIndex + 1 < all_time.size()) {
+				Duration timeElapsed = Duration.between(Instant.ofEpochSecond(all_time.get(currentIndex)),
+						Instant.ofEpochSecond(all_time.get(currentIndex + 1)));
+				times.add(timeElapsed.toSeconds());
+			}
+		}
+		if (times.size() == 0) {
+			return 0;
+		} else {
+			double sum = 0;
+			for (int i = 0; i < times.size(); i++) {
+				sum += (double) times.get(i) / (double) times.size();
+			}
+			return sum;
+		}
+	}
+
+	public double f40_mean_out_time() {
+		List<Long> all_time = new ArrayList<Long>();
+		List<Long> times = new ArrayList<Long>();
+		for (EthereumTransaction tx : this.transactions) {
+			if (tx.getFrom().equals(this.address)) {
+				all_time.add(Long.parseLong(tx.getTimeStamp()));
+
+			}
+		}
+		for (Long time : all_time) {
+			int currentIndex = all_time.indexOf(time);
+			if (currentIndex + 1 < all_time.size()) {
+				Duration timeElapsed = Duration.between(Instant.ofEpochSecond(all_time.get(currentIndex)),
+						Instant.ofEpochSecond(all_time.get(currentIndex + 1)));
+				times.add(timeElapsed.toSeconds());
+			}
+		}
+		if (times.size() == 0) {
+			return 0;
+		} else {
+			double sum = 0;
+			for (int i = 0; i < times.size(); i++) {
+				sum += (double) times.get(i) / (double) times.size();
+			}
+			return sum;
+		}
+	}
+
+	public double f41_mean_time() {
+		List<Long> all_time = new ArrayList<Long>();
+		List<Long> times = new ArrayList<Long>();
+		for (EthereumTransaction tx : this.transactions) {
+			all_time.add(Long.parseLong(tx.getTimeStamp()));
+		}
+		for (Long time : all_time) {
+			int currentIndex = all_time.indexOf(time);
+			if (currentIndex + 1 <= all_time.size() - 1) {
+				Duration timeElapsed = Duration.between(Instant.ofEpochSecond(all_time.get(currentIndex)),
+						Instant.ofEpochSecond(all_time.get(currentIndex + 1)));
+				times.add(timeElapsed.toSeconds());
+			}
+		}
+		if (times.size() == 0) {
+			return 0;
+		} else {
+			double sum = 0;
+			for (int i = 0; i < times.size(); i++) {
+				sum += (double) times.get(i) / (double) times.size();
+			}
+			return sum;
+		}
+	}
 
 	public long f42_transaction_fee_spent_incoming() {
 		long gas = 0;
@@ -458,20 +514,51 @@ public class EOA {
 
 	public String printAllFeatures() {
 		return 
-				"F1: "+ this.f1_total_transactions_sent() 
-				+"\n"
-				+ "F2: "
-				+this.f2_total_transactions_received() 
-				+"\n"
-				+ "F3: "
-				+this.f3_value_out()
-				+"\n"
-				+ "F4: "
-				+this.f4_value_in()
-				+"\n"
-				+ "F5: "
-				+this.f5_value_difference();
-				
+				"F1: " + this.f1_total_transactions_sent() + "\n" 
+				+ "F2: " + this.f2_total_transactions_received() + "\n"
+				+ "F3: " + this.f3_value_out() + "\n" 
+				+ "F4: " + this.f4_value_in() + "\n" 
+				+ "F5: " + this.f5_value_difference() + "\n"
+				+ "F6: " + this.f6_number_of_distinct_address_contacted() + "\n"
+				+ "F7: " + this.f7_total_transactions_sent_received() + "\n"
+				+ "F8: " + this.f8_total_transactions_sent_to_unique_address() + "\n"
+				+ "F9: " + this.f9_total_transactions_received_from_unique_address() + "\n"
+				+ "F10: " + this.f10_first_transaction_time() + "\n"
+				+ "F11: " + this.f11_last_transaction_time() + "\n"
+				+ "F12: " + this.f12_transaction_active_duration() + "\n"
+				+ "F13: " + this.f13_last_txn_bit() + "\n"
+				+ "F14: " + this.f14_last_transaction_value() + "\n"
+				+ "F15: " + this.f15_average_incoming_ether() + "\n"
+				+ "F16: " + this.f16_average_outgoing_ether() + "\n"
+				+ "F17: " + this.f17_average_percentage_gas_incoming() + "\n"
+				+ "F18: " + this.f18_average_percentage_gas_outgoing() + "\n"
+				+ "F19: " + this.f19_outgoing_gas_price() + "\n"
+				+ "F20: " + this.f20_incoming_gas_price() + "\n"
+				+ "F21: " + this.f21_average_incoming_gas_price() + "\n"
+				+ "F22: " + this.f22_average_outgoing_gas_price() + "\n"
+				+ "F23: " + this.f23_total_failed_transactions_incoming() + "\n"
+				+ "F24: " + this.f24_total_failed_transactions_outgoing() + "\n"
+				+ "F25: " + this.f25_total_failed_transactions() + "\n"
+				+ "F26: " + this.f26_total_success_transactions_incoming() + "\n"
+				+ "F27: " + this.f27_total_success_transactions_outgoing() + "\n"
+				+ "F28: " + this.f28_total_success_transactions() + "\n"
+				+ "F29: " + this.f29_gas_used_incoming_transaction() + "\n"
+				+ "F30: " + this.f30_gas_used_outgoing_transaction() + "\n"
+				+ "F31: " + this.f31_percentage_transaction_sent() + "\n"
+				+ "F32: " + this.f32_percentage_transaction_received() + "\n"
+				+ "F33: " + this.f33_standard_deviation_ether_incoming() + "\n"
+				+ "F34: " + this.f34_standard_deviation_ether_outgoing() + "\n"
+				+ "F35: " + this.f35_standard_deviation_gas_price_incoming() + "\n"
+				+ "F36: " + this.f36_standard_deviation_gas_price_outgoing() + "\n"
+				+ "F37: " + this.f37_first_transaction_bit() + "\n"
+				+ "F38: " + this.f38_first_transaction_value() + "\n"
+				+ "F39: " + this.f39_mean_in_time() + "\n"
+				+ "F40: " + this.f40_mean_out_time() + "\n"
+				+ "F41: " + this.f41_mean_time() + "\n"
+				+ "F42: " + this.f42_transaction_fee_spent_incoming() + "\n"
+				+ "F43: " + this.f43_transaction_fee_spent_outgoing() + "\n"
+				+ "F44: " + this.f44_transaction_fee_spent() + "\n";
+
 	}
 
 }

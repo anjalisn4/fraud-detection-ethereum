@@ -8,7 +8,8 @@ import java.net.MalformedURLException;
 
 import java.net.URL;
 
-import com.ethereum.eoa.EOA;
+import com.ethereum.accounts.EOA;
+import com.ethereum.accounts.SmartContract;
 import com.google.gson.Gson;
 
 public class EtherScan {
@@ -23,11 +24,16 @@ public class EtherScan {
 
 	public static void main(String[] args) throws Exception {
 		EtherScan s = new EtherScan();
-		String address ="0x9431eEA5981c9F94E19d43f523B9589269215AB3";
+		String address ="0x2CcD34285fDa10fa37eFBCC8B5B11530c982a30A";
 		EthereumTransactions t = s.getEthereumTransactions(address);
 		if(s.getAccountType(t.getResult().get(0)).equals(Account.EOA)) {
 			EOA eoa = new EOA(address, t.getResult());
 			System.out.println(eoa.printAllFeatures());
+		}
+		
+		if(s.getAccountType(t.getResult().get(0)).equals(Account.SMARTCONTRACT)) {
+			SmartContract sm = new SmartContract(address, t.getResult());
+			System.out.println(sm.printAllFeatures());
 		}
 	}
 
