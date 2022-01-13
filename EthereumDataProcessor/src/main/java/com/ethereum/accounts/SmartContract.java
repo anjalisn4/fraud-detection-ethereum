@@ -1,5 +1,6 @@
 package com.ethereum.accounts;
 
+import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -53,7 +54,7 @@ public class SmartContract {
 	}
 
 	public long f5_first_contract_invoke_time() {
-		return Long.parseLong(this.transactions.get(1).getTimeStamp());
+		return Long.parseLong(this.getFirstTransaction().getTimeStamp());
 	}
 
 	public long f6_last_contract_invoke_time() {
@@ -85,7 +86,12 @@ public class SmartContract {
 				gasUsed = gasUsed + Long.parseLong(tx.getGasUsed());
 			}
 		}
-		return gasUsed / this.f8_total_invocations();
+
+		if (this.f8_total_invocations() != 0) {
+			return gasUsed / this.f8_total_invocations();
+		} else {
+			return 0;
+		}
 	}
 
 	public long f11_total_gas_price_contract_invocations() {
@@ -105,7 +111,11 @@ public class SmartContract {
 				gasPrice = gasPrice + Long.parseLong(tx.getGasPrice());
 			}
 		}
-		return gasPrice / this.f8_total_invocations();
+		if (this.f8_total_invocations() != 0) {
+			return gasPrice / this.f8_total_invocations();
+		} else {
+			return 0;
+		}
 	}
 
 	public long f13_total_tx_fee_contract_invocations() {
@@ -125,27 +135,38 @@ public class SmartContract {
 				gas = gas + Long.parseLong(tx.getGas());
 			}
 		}
-		return gas / this.f8_total_invocations();
+		if (this.f8_total_invocations() != 0) {
+			return gas / this.f8_total_invocations();
+		} else {
+			return 0;
+		}
 	}
 
-	public long f15_total_ether_contract_invocations() {
-		long ether = 0;
+	public BigInteger f15_total_ether_contract_invocations() {
+		BigInteger value = new BigInteger("0");
 		for (EthereumTransaction tx : this.transactions) {
 			if (tx.getContractAddress().isEmpty()) {
-				ether = ether + Long.parseLong(tx.getValue());
+				BigInteger t = new BigInteger(tx.getValue());
+				value = value.add(t);
 			}
 		}
-		return ether;
+		return value;
 	}
 
-	public double f16_average_ether_contract_invocations() {
-		long ether = 0;
+	public BigInteger f16_average_ether_contract_invocations() {
+		BigInteger value = new BigInteger("0");
 		for (EthereumTransaction tx : this.transactions) {
 			if (tx.getContractAddress().isEmpty()) {
-				ether = ether + Long.parseLong(tx.getValue());
+				BigInteger t = new BigInteger(tx.getValue());
+				value = value.add(t);
 			}
 		}
-		return ether / this.f8_total_invocations();
+		BigInteger t = new BigInteger(String.valueOf(this.f8_total_invocations()));
+		if (this.f8_total_invocations() != 0) {
+			return value.divide(t);
+		} else {
+			return new BigInteger("0");
+		}
 	}
 
 	public long f17_total_gas_used_contract_invocations() {
@@ -165,7 +186,12 @@ public class SmartContract {
 				gasUsed = gasUsed + Long.parseLong(tx.getGasUsed());
 			}
 		}
-		return gasUsed / this.f8_total_invocations();
+		if (this.f8_total_invocations() != 0) {
+			return gasUsed / this.f8_total_invocations();
+		} else {
+			return 0;
+		}
+
 	}
 
 	public String printAllFeatures() {
@@ -184,5 +210,18 @@ public class SmartContract {
 				+ this.f16_average_ether_contract_invocations() + "\n" + "F17: "
 				+ this.f17_total_gas_used_contract_invocations() + "\n" + "F18: "
 				+ this.f18_avg_gas_used_contract_invocations() + "\n";
+	}
+
+	public String getAllFeatures() {
+		return this.f1_contract_creation_time() + "," + this.f2_transaction_fee_spent_contract_creation() + ","
+				+ this.f3_percentage_gas_used_contract_creation() + "," + this.f4_gas_price_contract_creation() + ","
+				+ this.f5_first_contract_invoke_time() + "," + this.f6_last_contract_invoke_time() + ","
+				+ this.f7_active_duration() + "," + this.f8_total_invocations() + ","
+				+ this.f9_total_unique_invocations() + "," + this.f10_avg_gas_used_contract_invocations() + ","
+				+ this.f11_total_gas_price_contract_invocations() + "," + this.f12_avg_gas_price_contract_invocations()
+				+ "," + this.f13_total_tx_fee_contract_invocations() + "," + this.f14_avg_tx_fee_contract_invocations()
+				+ "," + this.f15_total_ether_contract_invocations() + ","
+				+ this.f16_average_ether_contract_invocations() + "," + this.f17_total_gas_used_contract_invocations()
+				+ "," + this.f18_avg_gas_used_contract_invocations();
 	}
 }

@@ -1,4 +1,4 @@
-package com.ethereum.felonious;
+package com.ethereum.nonfelonious;
 
 import java.io.File;
 
@@ -11,7 +11,7 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-public class EthereumFeloniousDriver {
+public class EthereumNonFeloniousDriver {
 	
 	public static void main(String[] args) throws Exception {
 		if (args.length != 2) {
@@ -22,15 +22,15 @@ public class EthereumFeloniousDriver {
 
 		Configuration conf = new Configuration();
 
-		Job job = Job.getInstance(conf, "Invalid Accounts Mapper");
-		job.setJarByClass(EthereumFeloniousDriver.class);
+		Job job = Job.getInstance(conf, "Valid Accounts Mapper");
+		job.setJarByClass(EthereumNonFeloniousDriver.class);
 
 		FileInputFormat.addInputPath(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
-		job.setMapperClass(EthereumFeloniousMapper.class);
-		job.setReducerClass(EthereumFeloniousReducer.class);
-		job.setPartitionerClass(EthereumFeloniousPartitioner.class);
+		job.setMapperClass(EthereumNonFeloniousMapper.class);
+		job.setReducerClass(EthereumNonFeloniousReducer.class);
+		job.setPartitionerClass(EthereumNonFeloniousPartitioner.class);
 		job.setNumReduceTasks(3);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);

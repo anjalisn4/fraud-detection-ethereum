@@ -21,16 +21,14 @@ public class EOA {
 		this.address = address.toLowerCase();
 		this.transactions = transactions;
 	}
-	
+
 	public String getAddress() {
 		return address;
 	}
 
-
 	public List<EthereumTransaction> getTransactions() {
 		return transactions;
 	}
-	
 
 	private EthereumTransaction getFirstTransaction() {
 		return this.transactions.get(0);
@@ -39,7 +37,6 @@ public class EOA {
 	private EthereumTransaction getLastTransaction() {
 		return this.transactions.get(this.transactions.size() - 1);
 	}
-	
 
 	public int f1_total_transactions_sent() {
 		int count = 0;
@@ -138,12 +135,19 @@ public class EOA {
 				Instant.ofEpochSecond(this.f11_last_transaction_time())).toSeconds();
 	}
 
-	public String f13_last_txn_bit() {
-		return this.getLastTransaction().getTxreceipt_status();
+	public int f13_last_txn_bit() {
+		if (this.getLastTransaction().getFrom().equals(this.address)) {
+			return 1;
+		}
+		if (this.getLastTransaction().getTo().equals(this.address)) {
+			return 0;
+		}
+		return 0;
 	}
 
-	public String f14_last_transaction_value() {
-		return this.getLastTransaction().getValue();
+	public BigInteger f14_last_transaction_value() {
+		BigInteger value = new BigInteger(this.getLastTransaction().getValue());
+		return value;
 	}
 
 	public BigInteger f15_average_incoming_ether() {
@@ -156,7 +160,12 @@ public class EOA {
 				count = count.add(new BigInteger("1"));
 			}
 		}
-		return value.divide(count);
+		if (!count.equals(new BigInteger("0"))) {
+			return value.divide(count);
+
+		} else {
+			return new BigInteger("0");
+		}
 	}
 
 	public BigInteger f16_average_outgoing_ether() {
@@ -169,7 +178,13 @@ public class EOA {
 				count = count.add(new BigInteger("1"));
 			}
 		}
-		return value.divide(count);
+		if (!count.equals(new BigInteger("0"))) {
+			return value.divide(count);
+
+		} else {
+			return new BigInteger("0");
+		}
+
 	}
 
 	public double f17_average_percentage_gas_incoming() {
@@ -198,7 +213,7 @@ public class EOA {
 		return ((double) gas / total_gas) * 100;
 	}
 
-	public double f19_outgoing_gas_price() {
+	public long f19_outgoing_gas_price() {
 		long gas = 0;
 		for (EthereumTransaction tx : this.transactions) {
 			if (tx.getFrom().equals(this.address)) {
@@ -209,7 +224,7 @@ public class EOA {
 		return gas;
 	}
 
-	public double f20_incoming_gas_price() {
+	public long f20_incoming_gas_price() {
 		long gas = 0;
 		for (EthereumTransaction tx : this.transactions) {
 			if (tx.getTo().equals(this.address)) {
@@ -244,7 +259,7 @@ public class EOA {
 		return ((double) gas / total);
 	}
 
-	public double f23_total_failed_transactions_incoming() {
+	public int f23_total_failed_transactions_incoming() {
 		int count = 0;
 		for (EthereumTransaction tx : this.transactions) {
 			if (tx.getTo().equals(this.address) && tx.getTxreceipt_status().equals("0")) {
@@ -254,7 +269,7 @@ public class EOA {
 		return count;
 	}
 
-	public double f24_total_failed_transactions_outgoing() {
+	public int f24_total_failed_transactions_outgoing() {
 		int count = 0;
 		for (EthereumTransaction tx : this.transactions) {
 			if (tx.getFrom().equals(this.address) && tx.getTxreceipt_status().equals("0")) {
@@ -264,7 +279,7 @@ public class EOA {
 		return count;
 	}
 
-	public double f25_total_failed_transactions() {
+	public int f25_total_failed_transactions() {
 		int count = 0;
 		for (EthereumTransaction tx : this.transactions) {
 			if (tx.getTxreceipt_status().equals("0")) {
@@ -274,7 +289,7 @@ public class EOA {
 		return count;
 	}
 
-	public double f26_total_success_transactions_incoming() {
+	public int f26_total_success_transactions_incoming() {
 		int count = 0;
 		for (EthereumTransaction tx : this.transactions) {
 			if (tx.getTxreceipt_status().equals("1") && tx.getTo().equals(this.address)) {
@@ -284,7 +299,7 @@ public class EOA {
 		return count;
 	}
 
-	public double f27_total_success_transactions_outgoing() {
+	public int f27_total_success_transactions_outgoing() {
 		int count = 0;
 		for (EthereumTransaction tx : this.transactions) {
 			if (tx.getTxreceipt_status().equals("1") && tx.getFrom().equals(this.address)) {
@@ -325,13 +340,19 @@ public class EOA {
 	}
 
 	public double f31_percentage_transaction_sent() {
-		return ((this.f1_total_transactions_sent())
-				/ (this.f1_total_transactions_sent() + this.f2_total_transactions_received()) * 100);
+		int total = (this.f1_total_transactions_sent() + this.f2_total_transactions_received());
+		if (total != 0) {
+			return ((this.f1_total_transactions_sent() / total) * 100);
+		}
+		return 0;
 	}
 
 	public double f32_percentage_transaction_received() {
-		return ((this.f2_total_transactions_received())
-				/ (this.f1_total_transactions_sent() + this.f2_total_transactions_received()) * 100);
+		int total = (this.f1_total_transactions_sent() + this.f2_total_transactions_received());
+		if (total != 0) {
+			return ((this.f2_total_transactions_received() / total) * 100);
+		}
+		return 0;
 	}
 
 	public double f33_standard_deviation_ether_incoming() {
@@ -394,12 +415,19 @@ public class EOA {
 		return sd.evaluate(values);
 	}
 
-	public String f37_first_transaction_bit() {
-		return getFirstTransaction().getTxreceipt_status();
+	public int f37_first_transaction_bit() {
+		if (this.getFirstTransaction().getFrom().equals(this.address)) {
+			return 1;
+		}
+		if (this.getFirstTransaction().getTo().equals(this.address)) {
+			return 0;
+		}
+		return 0;
 	}
 
-	public String f38_first_transaction_value() {
-		return getFirstTransaction().getValue();
+	public BigInteger f38_first_transaction_value() {
+		BigInteger value = new BigInteger(this.getFirstTransaction().getValue());
+		return value;
 	}
 
 	public double f39_mean_in_time() {
@@ -512,52 +540,61 @@ public class EOA {
 		return gas;
 	}
 
+	public String getAllFeatures() {
+		return this.f1_total_transactions_sent() + "," + this.f2_total_transactions_received() + ","
+				+ this.f3_value_out() + "," + this.f4_value_in() + "," + this.f5_value_difference() + ","
+				+ this.f6_number_of_distinct_address_contacted() + "," + this.f7_total_transactions_sent_received()
+				+ "," + this.f8_total_transactions_sent_to_unique_address() + ","
+				+ this.f9_total_transactions_received_from_unique_address() + "," + this.f10_first_transaction_time()
+				+ "," + this.f11_last_transaction_time() + "," + this.f12_transaction_active_duration() + ","
+				+ this.f13_last_txn_bit() + "," + this.f14_last_transaction_value() + ","
+				+ this.f15_average_incoming_ether() + "," + this.f16_average_outgoing_ether() + ","
+				+ this.f17_average_percentage_gas_incoming() + "," + this.f18_average_percentage_gas_outgoing() + ","
+				+ this.f19_outgoing_gas_price() + "," + this.f20_incoming_gas_price() + ","
+				+ this.f21_average_incoming_gas_price() + "," + this.f22_average_outgoing_gas_price() + ","
+				+ this.f23_total_failed_transactions_incoming() + "," + this.f24_total_failed_transactions_outgoing()
+				+ "," + this.f25_total_failed_transactions() + "," + this.f26_total_success_transactions_incoming()
+				+ "," + this.f27_total_success_transactions_outgoing() + "," + this.f28_total_success_transactions()
+				+ "," + this.f29_gas_used_incoming_transaction() + "," + this.f30_gas_used_outgoing_transaction() + ","
+				+ this.f31_percentage_transaction_sent() + "," + this.f32_percentage_transaction_received() + ","
+				+ this.f33_standard_deviation_ether_incoming() + "," + this.f34_standard_deviation_ether_outgoing()
+				+ "," + this.f35_standard_deviation_gas_price_incoming() + ","
+				+ this.f36_standard_deviation_gas_price_outgoing() + "," + this.f37_first_transaction_bit() + ","
+				+ this.f38_first_transaction_value() + "," + this.f39_mean_in_time() + "," + this.f40_mean_out_time()
+				+ "," + this.f41_mean_time() + "," + this.f42_transaction_fee_spent_incoming() + ","
+				+ this.f43_transaction_fee_spent_outgoing() + "," + this.f44_transaction_fee_spent();
+	}
+
 	public String printAllFeatures() {
-		return 
-				"F1: " + this.f1_total_transactions_sent() + "\n" 
-				+ "F2: " + this.f2_total_transactions_received() + "\n"
-				+ "F3: " + this.f3_value_out() + "\n" 
-				+ "F4: " + this.f4_value_in() + "\n" 
-				+ "F5: " + this.f5_value_difference() + "\n"
-				+ "F6: " + this.f6_number_of_distinct_address_contacted() + "\n"
-				+ "F7: " + this.f7_total_transactions_sent_received() + "\n"
-				+ "F8: " + this.f8_total_transactions_sent_to_unique_address() + "\n"
-				+ "F9: " + this.f9_total_transactions_received_from_unique_address() + "\n"
-				+ "F10: " + this.f10_first_transaction_time() + "\n"
-				+ "F11: " + this.f11_last_transaction_time() + "\n"
-				+ "F12: " + this.f12_transaction_active_duration() + "\n"
-				+ "F13: " + this.f13_last_txn_bit() + "\n"
-				+ "F14: " + this.f14_last_transaction_value() + "\n"
-				+ "F15: " + this.f15_average_incoming_ether() + "\n"
-				+ "F16: " + this.f16_average_outgoing_ether() + "\n"
-				+ "F17: " + this.f17_average_percentage_gas_incoming() + "\n"
-				+ "F18: " + this.f18_average_percentage_gas_outgoing() + "\n"
-				+ "F19: " + this.f19_outgoing_gas_price() + "\n"
-				+ "F20: " + this.f20_incoming_gas_price() + "\n"
-				+ "F21: " + this.f21_average_incoming_gas_price() + "\n"
-				+ "F22: " + this.f22_average_outgoing_gas_price() + "\n"
-				+ "F23: " + this.f23_total_failed_transactions_incoming() + "\n"
-				+ "F24: " + this.f24_total_failed_transactions_outgoing() + "\n"
-				+ "F25: " + this.f25_total_failed_transactions() + "\n"
-				+ "F26: " + this.f26_total_success_transactions_incoming() + "\n"
-				+ "F27: " + this.f27_total_success_transactions_outgoing() + "\n"
-				+ "F28: " + this.f28_total_success_transactions() + "\n"
-				+ "F29: " + this.f29_gas_used_incoming_transaction() + "\n"
-				+ "F30: " + this.f30_gas_used_outgoing_transaction() + "\n"
-				+ "F31: " + this.f31_percentage_transaction_sent() + "\n"
-				+ "F32: " + this.f32_percentage_transaction_received() + "\n"
-				+ "F33: " + this.f33_standard_deviation_ether_incoming() + "\n"
-				+ "F34: " + this.f34_standard_deviation_ether_outgoing() + "\n"
-				+ "F35: " + this.f35_standard_deviation_gas_price_incoming() + "\n"
-				+ "F36: " + this.f36_standard_deviation_gas_price_outgoing() + "\n"
-				+ "F37: " + this.f37_first_transaction_bit() + "\n"
-				+ "F38: " + this.f38_first_transaction_value() + "\n"
-				+ "F39: " + this.f39_mean_in_time() + "\n"
-				+ "F40: " + this.f40_mean_out_time() + "\n"
-				+ "F41: " + this.f41_mean_time() + "\n"
-				+ "F42: " + this.f42_transaction_fee_spent_incoming() + "\n"
-				+ "F43: " + this.f43_transaction_fee_spent_outgoing() + "\n"
-				+ "F44: " + this.f44_transaction_fee_spent() + "\n";
+		return "F1: " + this.f1_total_transactions_sent() + "\n" + "F2: " + this.f2_total_transactions_received() + "\n"
+				+ "F3: " + this.f3_value_out() + "\n" + "F4: " + this.f4_value_in() + "\n" + "F5: "
+				+ this.f5_value_difference() + "\n" + "F6: " + this.f6_number_of_distinct_address_contacted() + "\n"
+				+ "F7: " + this.f7_total_transactions_sent_received() + "\n" + "F8: "
+				+ this.f8_total_transactions_sent_to_unique_address() + "\n" + "F9: "
+				+ this.f9_total_transactions_received_from_unique_address() + "\n" + "F10: "
+				+ this.f10_first_transaction_time() + "\n" + "F11: " + this.f11_last_transaction_time() + "\n" + "F12: "
+				+ this.f12_transaction_active_duration() + "\n" + "F13: " + this.f13_last_txn_bit() + "\n" + "F14: "
+				+ this.f14_last_transaction_value() + "\n" + "F15: " + this.f15_average_incoming_ether() + "\n"
+				+ "F16: " + this.f16_average_outgoing_ether() + "\n" + "F17: "
+				+ this.f17_average_percentage_gas_incoming() + "\n" + "F18: "
+				+ this.f18_average_percentage_gas_outgoing() + "\n" + "F19: " + this.f19_outgoing_gas_price() + "\n"
+				+ "F20: " + this.f20_incoming_gas_price() + "\n" + "F21: " + this.f21_average_incoming_gas_price()
+				+ "\n" + "F22: " + this.f22_average_outgoing_gas_price() + "\n" + "F23: "
+				+ this.f23_total_failed_transactions_incoming() + "\n" + "F24: "
+				+ this.f24_total_failed_transactions_outgoing() + "\n" + "F25: " + this.f25_total_failed_transactions()
+				+ "\n" + "F26: " + this.f26_total_success_transactions_incoming() + "\n" + "F27: "
+				+ this.f27_total_success_transactions_outgoing() + "\n" + "F28: "
+				+ this.f28_total_success_transactions() + "\n" + "F29: " + this.f29_gas_used_incoming_transaction()
+				+ "\n" + "F30: " + this.f30_gas_used_outgoing_transaction() + "\n" + "F31: "
+				+ this.f31_percentage_transaction_sent() + "\n" + "F32: " + this.f32_percentage_transaction_received()
+				+ "\n" + "F33: " + this.f33_standard_deviation_ether_incoming() + "\n" + "F34: "
+				+ this.f34_standard_deviation_ether_outgoing() + "\n" + "F35: "
+				+ this.f35_standard_deviation_gas_price_incoming() + "\n" + "F36: "
+				+ this.f36_standard_deviation_gas_price_outgoing() + "\n" + "F37: " + this.f37_first_transaction_bit()
+				+ "\n" + "F38: " + this.f38_first_transaction_value() + "\n" + "F39: " + this.f39_mean_in_time() + "\n"
+				+ "F40: " + this.f40_mean_out_time() + "\n" + "F41: " + this.f41_mean_time() + "\n" + "F42: "
+				+ this.f42_transaction_fee_spent_incoming() + "\n" + "F43: " + this.f43_transaction_fee_spent_outgoing()
+				+ "\n" + "F44: " + this.f44_transaction_fee_spent() + "\n";
 
 	}
 

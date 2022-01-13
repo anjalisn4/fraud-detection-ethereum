@@ -1,6 +1,7 @@
-package com.ethereum.felonious;
+package com.ethereum.nonfelonious;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -23,10 +24,9 @@ import com.ethereum.transactions.EthereumTransactions;
  * 
  * 
  */
-public class EthereumFeloniousMapper extends Mapper<LongWritable, Text, Text, Text> {
+public class EthereumNonFeloniousMapper extends Mapper<LongWritable, Text, Text, Text> {
+	public static final String API_KEY = "8KNHFB7J3U5WX8AGKN2WPXHRB63V5IBSRT";
 
-	public static final String API_KEY ="8BPTQD7WQ9NK9IVRZHQEDIQMX4C6MDBQ3C";
-	
 	@Override
 	public void map(LongWritable key, Text values, Context context) throws IOException, InterruptedException {
 		Text mapKey = new Text();
@@ -40,7 +40,9 @@ public class EthereumFeloniousMapper extends Mapper<LongWritable, Text, Text, Te
 
 			EtherScan s = new EtherScan(API_KEY);
 			EthereumTransactions t = s.getEthereumTransactions(data[0].toLowerCase());
-			if (t.getResult().size() != 0) {
+			List<String> invalidAccounts = NonFelonious.getInvalidAccounts();
+
+			if (t.getResult().size() > 0 && NonFelonious.validateNonFeloniousAccount(invalidAccounts, t.getResult())) {
 				if (s.getAccountType(t.getResult().get(0)).equals(EtherScan.Account.EOA)) {
 					accountType.set(EtherScan.Account.EOA.toString());
 					EOA eoa = new EOA(data[0], t.getResult());

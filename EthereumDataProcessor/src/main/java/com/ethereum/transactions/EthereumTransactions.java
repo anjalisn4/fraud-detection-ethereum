@@ -2,7 +2,11 @@ package com.ethereum.transactions;
 
 import java.util.List;
 
+import com.ethereum.transactions.EtherScan.Account;
+
 public class EthereumTransactions {
+	
+	private Account type;
 
 	private String status;
 	private String message;
@@ -18,6 +22,14 @@ public class EthereumTransactions {
 
 	public List<EthereumTransaction> getResult() {
 		return result;
+	}
+
+	public Account getType() {
+		return type;
+	}
+
+	public void setType(Account type) {
+		this.type = type;
 	}
 
 }
