@@ -7,7 +7,8 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    dict = {}
+    return render_template('index.html',result = dict)
 
 @app.route('/classify', methods=['POST'])
 def classify():
@@ -21,7 +22,10 @@ def classify():
     else:
         pred = 'Invalid'
 
-    return render_template('index.html', prediction_text='The account type is {} and classified as {}'.format(prediction[1], pred))
+    dict = {
+        'Account Type':prediction[1],
+        'Decision Tree Prediction':pred,}
+    return render_template('index.html',result = dict)
 
 
 if __name__ == '__main__':

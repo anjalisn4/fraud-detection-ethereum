@@ -1,5 +1,4 @@
 import numpy as np
-import requests
 import pickle
 from subprocess import Popen, PIPE, STDOUT
 import os,sys
@@ -20,7 +19,6 @@ def pred(address):
         if(len(x)==19 and x[18] == 'SmartContract'):
             feat = getSmartContractFeatures(x)
             prediction = sc_model.predict(feat)[0]
-            print(prediction)
             return prediction, x[18]
         elif(len(x)==45 and x[44] == 'EOA'):
             feat = getEOAFeatures(x)

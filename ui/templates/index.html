@@ -10,7 +10,6 @@
     <link href='https://fonts.googleapis.com/css?family=Hind:300' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="../static/css/styles.css">
-
 </head>
 
 <body>
@@ -25,8 +24,15 @@
 
         <br>
         <br>
-        {{ prediction_text }}
-
+        <!-- {{ prediction_text }} -->
+        <table border=1 class="customers" >
+            {% for key, value in result.items() %}
+            <tr>
+                <th> {{ key }} </th>
+                <td> {{ value }} </td>
+            </tr>
+            {% endfor %}
+        </table>
 
     </div>
 
