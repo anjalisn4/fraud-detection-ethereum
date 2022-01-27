@@ -26,6 +26,7 @@
 	</section>
 	<section name="MavenProjectImportWizardPage">
 		<list key="rootDirectory">
+			<item value="/home/ubuntu/BITS/DSFinalProject/EthereumDataProcessor"/>
 			<item value="/home/hdoop/Documents/Project/DSFinalProject/EthereumDataProcessor"/>
 		</list>
 		<list key="projectNameTemplate">

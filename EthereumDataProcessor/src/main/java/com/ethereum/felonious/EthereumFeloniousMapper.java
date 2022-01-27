@@ -40,7 +40,7 @@ public class EthereumFeloniousMapper extends Mapper<LongWritable, Text, Text, Te
 
 			EtherScan s = new EtherScan(API_KEY);
 			EthereumTransactions t = s.getEthereumTransactions(data[0].toLowerCase());
-			if (t.getResult().size() != 0) {
+			if (t.getResult().size() > 1) {
 				if (s.getAccountType(t.getResult().get(0)).equals(EtherScan.Account.EOA)) {
 					accountType.set(EtherScan.Account.EOA.toString());
 					EOA eoa = new EOA(data[0], t.getResult());

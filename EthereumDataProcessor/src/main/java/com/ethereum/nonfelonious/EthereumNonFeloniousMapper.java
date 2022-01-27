@@ -42,7 +42,7 @@ public class EthereumNonFeloniousMapper extends Mapper<LongWritable, Text, Text,
 			EthereumTransactions t = s.getEthereumTransactions(data[0].toLowerCase());
 			List<String> invalidAccounts = NonFelonious.getInvalidAccounts();
 
-			if (t.getResult().size() > 0 && NonFelonious.validateNonFeloniousAccount(invalidAccounts, t.getResult())) {
+			if (t.getResult().size() > 1 && NonFelonious.validateNonFeloniousAccount(invalidAccounts, t.getResult())) {
 				if (s.getAccountType(t.getResult().get(0)).equals(EtherScan.Account.EOA)) {
 					accountType.set(EtherScan.Account.EOA.toString());
 					EOA eoa = new EOA(data[0], t.getResult());

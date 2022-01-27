@@ -16,15 +16,6 @@ public class NonFelonious {
 	private static final String COMMA_DELIMITER = ",";
 	private static final String INVAID_CSV_PATH = "/home/hdoop/Documents/Project/DSFinalProject/data/invalid/invalid.csv";
 
-//	public static void main(String[] args) throws IOException {
-//		EtherScan s = new EtherScan();
-//		String address = "0x00bd9fd57c423a1b1c969823d409156d90974d77";
-//		EthereumTransactions t = s.getEthereumTransactions(address);
-//		List<String> invalidAccounts = getInvalidAccounts();
-//		System.out.println(validateNonFeloniousAccount(invalidAccounts, t.getResult()));
-//
-//	}
-
 	public static List<String> getInvalidAccounts() throws IOException {
 		List<String> records = new ArrayList<String>();
 		try (BufferedReader br = new BufferedReader(new FileReader(INVAID_CSV_PATH))) {
@@ -39,7 +30,7 @@ public class NonFelonious {
 		return records;
 	}
 
-	//Returns true if the account is a valid non fellonious account
+	//Returns true if the account is a valid non felonious account
 	public static boolean validateNonFeloniousAccount(List<String> invalidAccounts,
 			List<EthereumTransaction> transactions) {
 		List<String> accountsInteractedWith = new ArrayList<String>();
