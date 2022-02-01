@@ -68,7 +68,7 @@ public class EtherScan {
 			con.disconnect();
 		}
 
-		if (data.getResult().size() != 0) {
+		if (data.getResult()!=null && data.getResult().size() != 0) {
 			Account type = getAccountType(data.getResult().get(0));
 			data.setType(type);
 		} else {
