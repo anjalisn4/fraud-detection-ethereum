@@ -13,19 +13,8 @@ def home():
 @app.route('/classify', methods=['POST'])
 def classify():
     address = [(x) for x in request.form.values()]
-    pred = 'null'
-    prediction = logic.pred(address[0])
-    if prediction[0] == 1:
-        pred = "Malicious"
-    elif prediction[0] == 0:
-        pred = 'Non-Malicious'
-    else:
-        pred = 'Invalid'
-
-    dict = {
-        'Account Type':prediction[1],
-        'Decision Tree Prediction':pred,}
-    return render_template('index.html',result = dict)
+    response = logic.pred(address[0])
+    return render_template('index.html',result = response)
 
 
 if __name__ == '__main__':

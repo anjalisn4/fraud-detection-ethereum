@@ -3,58 +3,89 @@ import pickle
 from subprocess import Popen, PIPE, STDOUT
 import os,sys
 
-eoa_model = pickle.load(open('../code/eoa_dt_model.pkl', 'rb'))
-sc_model = pickle.load(open('../code/sc_dt_model.pkl', 'rb'))
+eoa_dt = pickle.load(open('../code/exec-results/eoa/models/dt.pkl', 'rb'))
+eoa_knn = pickle.load(open('../code/exec-results/eoa/models/knn.pkl', 'rb'))
+eoa_rf = pickle.load(open('../code/exec-results/eoa/models/rf.pkl', 'rb'))
+eoa_xgb = pickle.load(open('../code/exec-results/eoa/models/xgb.pkl', 'rb'))
+
+# Smart Contract models
+sc_dt = pickle.load(open('../code/exec-results/sc/models/dt.pkl', 'rb'))
+sc_knn = pickle.load(open('../code/exec-results/sc/models/knn.pkl', 'rb'))
+sc_rf = pickle.load(open('../code/exec-results/sc/models/rf.pkl', 'rb'))
+sc_xgb = pickle.load(open('../code/exec-results/sc/models/xgb.pkl', 'rb'))
 
 
 def pred(address):
+    result = {
+        'Account Type':'Not Valid',
+        'Decision Tree Classifier Prediction':'NA',
+        'KNN Prediction': 'NA',
+        'Random Forest Classifier': 'NA',
+        'XGBoost Classifier': 'NA'}
     try:
-        p = Popen(['java', '-jar', '/home/ubuntu/Desktop/etherscan.jar',
+        p = Popen(['java', '-jar', '../code/exec-results/etherscan.jar',
                 address], stdout=PIPE, stderr=STDOUT)
         l = ""
         for line in p.stdout:
             l = line
         l = l.strip().decode("utf-8")
         x = l.split(",")
-        if(len(x)==19 and x[18] == 'SmartContract'):
+        if(len(x)==19 and x[18] == 'Smart Contract'):
             feat = getSmartContractFeatures(x)
-            prediction = sc_model.predict(feat)[0]
-            return prediction, x[18]
+            prediction = sc_dt.predict(feat)[0]
+            result['Account Type']= x[18]
+            result['Decision Tree Classifier Prediction']= "Felonious" if prediction == 1 else 'Non-Felonious'
+            prediction = sc_knn.predict(feat)[0]
+            result['KNN Prediction']= "Felonious" if prediction == 1 else 'Non-Felonious'
+            prediction = sc_rf.predict(feat)[0]
+            result['Random Forest Classifier']= "Felonious" if prediction == 1 else 'Non-Felonious'
+            prediction = sc_xgb.predict(feat)[0]
+            result['XGBoost Classifier']= "Felonious" if prediction == 1 else 'Non-Felonious'
+            return result
         elif(len(x)==45 and x[44] == 'EOA'):
             feat = getEOAFeatures(x)
-            prediction = eoa_model.predict(feat)[0]
-            return prediction, x[44]
-        else:
-            return -2, 'Not Valid'
+            prediction = eoa_dt.predict(feat)[0]
+            result['Account Type']= x[44]
+            result['Decision Tree Classifier Prediction']= "Felonious" if prediction == 1 else 'Non-Felonious'
+            prediction = eoa_knn.predict(feat)[0]
+            result['KNN Prediction']= "Felonious" if prediction == 1 else 'Non-Felonious'
+            prediction = eoa_rf.predict(feat)[0]
+            result['Random Forest Classifier']= "Felonious" if prediction == 1 else 'Non-Felonious'
+            prediction = eoa_xgb.predict(feat)[0]
+            result['XGBoost Classifier']= "Felonious" if prediction == 1 else 'Non-Felonious'
+            return result
+        return result
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
         print(exc_type, fname, exc_tb.tb_lineno)
-        return -1,'Not Valid'
+        result['Account Type']= exc_type
+        return result
 
 def getSmartContractFeatures(tx):
-    f5_first_contract_invoke_time = tx[4]
+
     f1_contract_creation_time = tx[0]
+    f5_first_contract_invoke_time = tx[4]
     f6_last_contract_invoke_time = tx[5]
     f4_gas_price_contract_creation = tx[3]
     f12_avg_gas_price_contract_invocations = tx[11]
     f2_transaction_fee_spent_contract_creation = tx[1]
+    f11_total_gas_price_contract_invocations = tx[10]
     f18_avg_gas_used_contract_invocations = tx[17]
     f10_avg_gas_used_contract_invocations = tx[9]
-    f11_total_gas_price_contract_invocations = tx[10]
-    f7_active_duration = tx[6]
+    f17_total_gas_used_contract_invocations = tx[16]
 
     return [np.array([
-        f5_first_contract_invoke_time,
         f1_contract_creation_time,
+        f5_first_contract_invoke_time,
         f6_last_contract_invoke_time,
         f4_gas_price_contract_creation,
         f12_avg_gas_price_contract_invocations,
         f2_transaction_fee_spent_contract_creation,
+        f11_total_gas_price_contract_invocations,
         f18_avg_gas_used_contract_invocations,
         f10_avg_gas_used_contract_invocations,
-        f11_total_gas_price_contract_invocations,
-        f7_active_duration])]
+        f17_total_gas_used_contract_invocations],dtype=float)]
 
 
 def getEOAFeatures(tx):
@@ -67,7 +98,7 @@ def getEOAFeatures(tx):
     f19_outgoing_gas_price = tx[18]
     f44_transaction_fee_spent = tx[43]
     f36_standard_deviation_gas_price_outgoing = tx[35]
-    f43_transaction_fee_spent_outgoing = tx[42]
+    f5_value_difference = tx[4]
 
     return [np.array([
         f10_first_transaction_time,
@@ -79,4 +110,4 @@ def getEOAFeatures(tx):
         f19_outgoing_gas_price,
         f44_transaction_fee_spent,
         f36_standard_deviation_gas_price_outgoing,
-        f43_transaction_fee_spent_outgoing])]
+        f5_value_difference],dtype=float)]

@@ -24,7 +24,7 @@ public class EthereumParser {
 
 			if (s.getAccountType(t.getResult().get(0)).equals(Account.SMARTCONTRACT)) {
 				SmartContract sc = new SmartContract(args[0], t.getResult());
-				System.out.println(sc.getAllFeatures()+",SmartContract");
+				System.out.println(sc.getAllFeatures()+",Smart Contract");
 			}
 
 		}
