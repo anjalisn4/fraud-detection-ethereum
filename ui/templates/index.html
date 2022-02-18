@@ -15,6 +15,7 @@
 <body>
     <div class="login">
         <h1>Classify Ethereum Account</h1>
+
         <!-- Main Input For Receiving Query to our ML -->
         <form action="http://localhost:7000/classify" method="post">
             <input type="text" name="address" placeholder="Address" required="required" />
@@ -23,18 +24,21 @@
         </form>
 
         <br>
-        <br>
-        <!-- {{ prediction_text }} -->
-        <table border=1 class="customers" >
-            {% for key, value in result.items() %}
-            <tr>
-                <th> {{ key }} </th>
-                <td> {{ value }} </td>
-            </tr>
-            {% endfor %}
-        </table>
+        <h5  style="text-align:center">{{ addr }}</h5>
+        <div>
+            <table border=1 class="customers">
+                {% for key, value in result.items() %}
+                <tr>
+                    <th> {{ key }} </th>
+                    <td> {{ value }} </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
 
     </div>
+    <br>
+
 
 
 </body>

@@ -14,7 +14,7 @@ def home():
 def classify():
     address = [(x) for x in request.form.values()]
     response = logic.pred(address[0])
-    return render_template('index.html',result = response)
+    return render_template('index.html',result = response, addr =address[0] )
 
 
 if __name__ == '__main__':
