@@ -49,6 +49,3 @@ validate a blacklisted account and enable the law enforcement
 agencies take appropriate actions on the stolen coins/Ponzi
 schemes. The proof of truth data on the blockchain ledger will
 serve as a benchmark for future analysis.
----
-Keywords—Blockchain, Big data, Fraud-detection,
-Ethereum, Machine-learning
